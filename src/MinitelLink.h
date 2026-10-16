@@ -22,6 +22,12 @@ class MinitelLink {
   // 1200 bauds par ce constructeur, avant setup()).
   MinitelLink(Minitel& minitel, HardwareSerial& port);
 
+  // A appeler UNE fois dans setup() : rouvre le port sur le coeur courant (le
+  // coeur 1 de loop() ; les constructeurs globaux l'avaient installe sur le
+  // coeur 0, a cote du Wi-Fi) et masque les interruptions d'erreur de ligne
+  // (break, parite, trame).
+  void begin(int8_t rxPin, int8_t txPin);
+
   // Demande sa vitesse au terminal (PRO1 + STATUS_VITESSE). -1 sans reponse.
   int askSpeed(uint32_t timeoutMs = 600);
 

@@ -43,9 +43,44 @@ Terminal de référence du kit : un **Minitel 1B** fabriqué par Telic Alcatel
 | Écho clavier coupé | `ESC 3B AIGUILLAGE_OFF CODE_RECEPTION_MODEM CODE_EMISSION_CLAVIER` (PRO3) | acquittement `1B 3B 63 …` |
 | Mode page (pas de défilement) | `ESC 3A STOP ROULEAU` (PRO2) | acquittement `1B 3A 73 …` |
 
+| Passer en mode mixte (80 col.) | `ESC 3A 32 7D` (PRO2 MIXTE1) | `13 70` |
+| Revenir en Vidéotex (40 col.) | `ESC 3A 32 7E` (PRO2 MIXTE2) | `13 71` |
+| Passer en téléinformatique | `ESC 3A 31 7D` (PRO2 TELINFO) | `1B 5B 3F 7A` |
+| Position du curseur | `ESC 61` | `US ligne colonne` (`0x40 +` chacune) |
+
+Attention : `ESC 61` **demande** la position du curseur, il ne le cache pas.
+Le terminal répond sur sa sortie, comme s'il s'agissait de touches.
+
 Les constantes sont celles de `Minitel1B_Hard`. Référence : les STUM1B
 (spécifications techniques d'utilisation du Minitel 1B), p. 118-124 pour le
 clavier et p. 141 pour la vitesse.
+
+## Affichage Vidéotex
+
+| Élément | Codes |
+| --- | --- |
+| Curseur visible / invisible | `CON` `0x11` / `COFF` `0x14` |
+| Effacer l'écran / curseur en haut | `FF` `0x0C` / `RS` `0x1E` |
+| Positionner | `US` `0x1F`, `0x40 + ligne`, `0x40 + colonne` (ligne 0 = ligne de service) |
+| Jeu G1 (mosaïque) / G0 (texte) | `SO` `0x0E` / `SI` `0x0F` |
+| Couleur du caractère / du fond | `ESC 0x40 + n` / `ESC 0x50 + n` (0 noir … 7 blanc) |
+| Taille normale / double hauteur / double grandeur | `ESC 4C` / `ESC 4D` / `ESC 4F` (texte seulement) |
+| Effacer la fin de ligne | `CAN` `0x18` |
+
+- **Couleurs** dans l'ordre des codes : noir, rouge, vert, jaune, bleu,
+  magenta, cyan, blanc. Sur un tube noir et blanc elles deviennent des gris :
+  noir 0 %, bleu 40 %, rouge 50 %, magenta 60 %, vert 70 %, cyan 80 %,
+  jaune 90 %, blanc 100 %. Pour le contraste : blanc ou jaune sur noir.
+- **Attribut « en espace »** : un changement de couleur est porté par la
+  cellule qui suit le code. Terminer un segment par G0 + espace.
+- **Double hauteur** : le caractère grandit **vers le haut** à partir de la
+  ligne du curseur.
+- **G0 n'est pas tout à fait l'ASCII** : `0x5E` est une flèche vers le haut,
+  `0x60` un trait horizontal, `0x7B`–`0x7D` des traits verticaux, `0x7E` un trait haut. Les accents passent par
+  le jeu G2 (`SS2` `0x19`, puis l'accent, puis la lettre) ; certains services
+  d'époque utilisaient `SYN` (`0x16`) à la place de `SS2`.
+- **Mode mixte** (80 colonnes) : plus de mosaïque G1, attributs réduits, et le
+  curseur souligné clignotant ne se cache pas.
 
 ## Clavier
 

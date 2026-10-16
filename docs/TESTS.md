@@ -76,6 +76,26 @@ contenu est valide. Au démarrage :
 La raison vient de `esp_reset_reason()`. Une étape fixe et une touche
 répétée d'un redémarrage à l'autre désignent l'endroit exact du blocage.
 
+## Mire : ce que le terminal affiche vraiment
+
+Les étapes et leur cadence (3 s d'attente, puis environ 0,65 s par écran)
+sont celles du laboratoire Vidéotex de la passerelle 3615 ; le contenu de
+chaque écran est proposé ici. À regarder sur le vrai Minitel.
+
+1. **Grille** : bords et coins aux quatre extrémités (lignes 1 et 24,
+   colonnes 1 et 40).
+2. **Couleurs** : les huit couleurs, texte et fond.
+3. **Jeu de caractères** : G0 complet, y compris les codes qui diffèrent de
+   l'ASCII, et les accents G2.
+4. **ASCII** : un texte replié par `asciiFold`.
+5. **Mosaïque** : les 64 combinaisons G1, puis une forme connue (yeux pleins).
+6. **Attributs** : clignotement, inversion, soulignement, tailles.
+7. **Bornes** : écrire en colonne 40 et en ligne 24 sans défilement.
+8. **Image réelle**, puis quatre images d'une **animation**.
+
+Avant de lancer la mire : renvoyer le terminal en Vidéotex 40 colonnes
+(`ESC 3A 32 7E`), caractère normal (`ESC 4C`), curseur invisible (`0x14`).
+
 ## Campagne minimale avant un flash « en service »
 
 1. Démarrage **Minitel éteint** : le firmware démarre, réessaie toutes les

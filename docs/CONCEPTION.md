@@ -34,7 +34,7 @@ Légende : **K** = va dans le kit (après découplage), **E** = exemple du kit,
 | Fichier | Verdict | Ce qui part, ce qui reste |
 | --- | --- | --- |
 | `MinitelKeys.h` | **K** | Lecteur clavier non bloquant, mêmes codes que `getKeyCode(false)`. À découpler de `Serial2` (prendre un `Stream&`) et de `Serial.printf` (rappel de journal). `minitelTerminalReady` et la sonde vont dans le module lien. |
-| `Minitel_Sigil.ino` : `interrogerVitesseMinitel`, `commandeMinitel`, `vitesseMinitelPort`, `reglerVitesseMinitelPort`, `probeMinitelTerminal` | **K** | Module « lien » : détection de vitesse bornée, commandes à acquittement borné, vitesse lue dans le matériel, écho coupé et mode page sans `echo()`/`pageMode()`. Ces fonctions sont **en cours de modification** par une autre session : on portera leur version stabilisée, pas celle d'aujourd'hui. |
+| `Minitel_Sigil.ino` : `interrogerVitesseMinitel`, `commandeMinitel`, `vitesseMinitelPort`, `reglerVitesseMinitelPort`, `probeMinitelTerminal` | **K** | Module « lien » : détection de vitesse bornée, commandes à acquittement borné, vitesse lue dans le matériel, écho coupé et mode page sans `echo()`/`pageMode()`. Stabilisées le 2026-10-16 (correctifs de la liaison : vitesse relue dans le matériel, port rouvert une fois dans `setup()` sur le cœur 1, interruptions d'erreur de ligne masquées) : ce sont ces versions qu'on porte, réouverture du port comprise (`MinitelLink::begin()`). |
 | `Minitel_Sigil.ino` : fil d'Ariane RTC, `verifierTas` | **K** (module diagnostic, optionnel) | Rien de Minitel dedans, mais c'est l'outillage qui a trouvé les pannes de la liaison. Petit, sans dépendance. |
 | `Minitel_Sigil.ino` : modes, `handleKey`, Wi-Fi, mDNS | **S** | Navigation et réseau propres au firmware. |
 | `Screen.h` | **K** | `asciiFold` (UTF-8 → ASCII affichable), `writeCharAt`, `writeRow`, `wrapText`. Ne dépend que de l'objet `Minitel`. |
@@ -58,13 +58,32 @@ Légende : **K** = va dans le kit (après découplage), **E** = exemple du kit,
 | `docs/G1_MOSAIQUES.md`, `docs/TROUBLESHOOTING.md` | **D** : sources de `PIEGES.md` et de la fiche du terminal. |
 | `Esp32Admin.h`, `DeviceManagement.h`, `BluetoothSpeakerService.h`, `OllamaChannel.h`, `AutomationService.h` | Hors kit : administration ESP32, Ollama, scènes. Rien de Minitel. |
 
+### minitel-musee (public)
+
+| Élément | Verdict |
+| --- | --- |
+| `src/videotex/decoder.ts` (flux `.vdt` → grille 40 × 25 : G0/G2, G1, REP, couleurs, tailles, Vidéotex photographique) | **K, phase 2** (`js/`) : c'est l'outil qui permet de *regarder* un flux sans terminal, celui que le canon recommande pour vérifier une forme. Le kit y renvoie dès maintenant. |
+| `src/videotex/terminal.ts` (saisie affichée, puis Envoi) | Reste au musée ; le comportement attendu est décrit dans `TERMINAL_M1B.md`. |
+| Tests « yeux pleins », 3615 GOTO10, portails, NFZ 300 | Restent au musée (contenu, pas socle). |
+
+### 3615-gateways et sa version en service (dépôt privé)
+
+| Élément | Verdict |
+| --- | --- |
+| Filtrage Telnet `IAC`, contrat du pont série (le pont se comporte en client Telnet local, le service garde le routage) | **D** : `PIEGES.md`, section 5. |
+| Laboratoire Vidéotex (mire, couleurs, jeu de caractères, mosaïque, attributs, bornes, image réelle, animation) | **D** : procédure « mire » de `TESTS.md`. |
+| `firmware/TELNET_PRO_PRESETS.md` | **D** : réglages repris dans `PIEGES.md`, section 5. |
+| Plan d'extraction du côté serveur vers un dépôt dédié (consigné dans le dépôt privé, différé) | Hors kit : c'est le pendant serveur de ce dépôt. Voir « 3615-gateways : rester à part ». |
+
 ### minitel-face (serveur Node, privé)
 
 | Élément | Verdict |
 | --- | --- |
 | `src/libs/g1.js` (`mirrorG1`, `sym`, `mirrorRow`, constantes G1) | **K, phase 2** : paquet JS du kit (`js/`), même règles que le C++. |
 | `src/EscOptimizer.js` (suppression des GOTO/couleurs redondants) | **K, phase 2** (`js/`). |
-| `docs/minitel_display_notes.md`, `docs/display_strategy.md` | **D** : attribut « en espace », patch partiel sans CLS. |
+| `docs/minitel_display_notes.md`, `docs/display_strategy.md` | **D** : attribut « en espace », patch partiel sans CLS, gris du tube N&B. **Plusieurs séquences y sont fausses** (`ESC 61` pour cacher le curseur, double hauteur, bascule de mode) : corrigées dans `TERMINAL_M1B.md` et `PIEGES.md`, à corriger aussi dans minitel-face. |
+| `arduino/Minitel-Face-ESP32` | **D** : `yield()` tous les 32 octets, message binaire d'ouverture du WebSocket (`PIEGES.md`). |
+| `test/audit_screen.js`, `test_display.js` | Restent dans minitel-face ; ils reprennent les séquences fausses ci-dessus. |
 | `docs/Minitel-ESP32-main/` (GPL-3), `docs/imgtovdt-…`, `docs/videotex-codes.pdf` | **Ne pas copier** : tiers. Lien vers les sources d'origine. |
 | `LibZyra.js`, `LibClassic.js`… | Restent dans minitel-face (rendu serveur du personnage). |
 
@@ -169,8 +188,30 @@ Recommandation : **ne pas fusionner**.
   **contrat** : octets Vidéotex bruts sur WebSocket (`?mode=raw`), touches
   remontées en binaire. Ce contrat se documente dans le kit
   (`VideotexWsBridge`) et la passerelle y renvoie.
+- Le dépôt privé qui fait tourner la passerelle a déjà son propre plan
+  d'extraction du côté serveur vers un dépôt dédié (différé depuis le
+  2026-09-16). Si ce dépôt voit le jour, c'est lui que 3615-gateways devrait
+  rejoindre, pas le kit.
 - Seule `firmware/TELNET_PRO_PRESETS.md` de 3615-gateways a sa place côté kit
   (réglages du dongle) : un lien suffit.
+
+## Sources auditées
+
+| Source | Lu | Date |
+| --- | --- | --- |
+| Minitel_Sigil (privé) | `.ino`, `MinitelKeys.h`, `Screen.h`, `SerialConsole.h` et README en entier ; autres fichiers par leurs déclarations et dépendances ; historique git complet (jusqu'à l'OTA et aux correctifs de liaison du 2026-10-16) | 2026-10-16 |
+| Minitel_Face_Autonomous (privé) | README, `TROUBLESHOOTING.md`, `G1_MOSAIQUES.md` en entier ; les cinq autres `docs/` par recherche ciblée ; déclarations du code ; historique git ; issue de validation matérielle | 2026-10-16 |
+| minitel-face (privé) | README, notes d'affichage, `ZYRA.md` (rendu), deux croquis Arduino (commentaires et correctif de connexion), en-tête de `test/audit_screen.js`, début de `g1.js` et `EscOptimizer.js` ; autres `docs/` par leurs titres ; historique git ; issues | 2026-10-16 |
+| minitel-musee (public) | `src/videotex/`, `AGENTS.md`, `docs/AUDIT_2026-10-06.md`, historique git | 2026-10-16 |
+| 3615-gateways (public) | README, `docs/`, `firmware/TELNET_PRO_PRESETS.md` | 2026-10-16 |
+| Passerelle en service (dépôt privé) | `services/3615-gateways` (`docs/`, `minitel.js`, `videotex-lab.js`, `telnet-session.js`), copie de minitel-face (historique), issues Minitel et plan d'extraction | 2026-10-16 |
+| lemegeton-core (public) | `canon/VIDEOTEX.md`, `UNIFICATION.md`, `README.md` | 2026-10-16 |
+| sigil (privé) | `CLAUDE.md`, `deploy/minitel/README.md` | 2026-10-16 |
+| `Minitel1B_Hard` | code (`.h`, `.cpp`) : toutes les attentes sur le terminal | 2026-10-16 |
+
+Non repris : archives tierces de minitel-face (`docs/Minitel-ESP32-main`,
+`imgtovdt…`, PDF), les modules KVM et caméra de la passerelle (pas du
+Minitel), et l'aide d'un serveur de discussion (contenu privé).
 
 ## Ce qui ne doit jamais entrer dans le kit
 
