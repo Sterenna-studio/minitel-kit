@@ -1,0 +1,4 @@
+# Motifs de la verification des infos privees : locaux, jamais publies.
+.motifs-prives
+build/
+.vscode/
