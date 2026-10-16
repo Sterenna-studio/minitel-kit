@@ -1,6 +1,6 @@
 # faces/ (optionnel, décision 6 de docs/CONCEPTION.md)
 
-Moteur d'yeux (transposition de web-eye-animation, MIT, CyberAgentAILab) et
+Moteur d'yeux (transposition de web-eye-animation, MIT, CyberAgentAILab ; licence dans `NOTICE`) et
 six visages G1 (Classic, Robot, Alien, Eyes, Zyra, Zyra Eyes), à extraire de
 `LemegetonEyes.h` et `Galerie.h` de Minitel_Sigil.
 

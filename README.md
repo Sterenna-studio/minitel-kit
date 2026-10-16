@@ -48,4 +48,7 @@ le kit les remplace (voir [docs/PIEGES.md](docs/PIEGES.md)).
 
 ## Licence
 
-À décider (voir la conception).
+Code et documentation sous [GPL-3.0](LICENSE), comme `Minitel1B_Hard` dont
+le kit dépend. Le moteur d'yeux transpose
+[web-eye-animation](https://github.com/CyberAgentAILab/web-eye-animation)
+(MIT, CyberAgent AI Lab) : sa licence est reproduite dans [NOTICE](NOTICE).

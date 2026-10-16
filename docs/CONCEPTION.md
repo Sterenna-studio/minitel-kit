@@ -198,12 +198,10 @@ doit dire d'où vient son code ; leur contenu n'est pas reproduit.
 
 1. ~~**Nom**~~ : tranché le 2026-10-16, `minitel-kit` (bibliothèque
    `MinitelKit`).
-2. **Licence** : la bibliothèque inclut `Minitel1B_Hard` (GPL-3.0), donc tout
-   firmware qui l'utilise est déjà sous GPL-3.0 une fois distribué. Pistes :
-   **GPL-3.0** pour tout (aligné, aucune ambiguïté) ; ou **MIT** pour le code du
-   kit + **CC BY 4.0** pour `docs/` (plus réutilisable, compatible GPL). Dans
-   les deux cas, garder la mention MIT de web-eye-animation pour le moteur
-   d'yeux. Aucun dépôt Sterenna n'a encore de licence déclarée.
+2. ~~**Licence**~~ : tranché le 2026-10-16, **GPL-3.0** pour le code et les
+   docs (`LICENSE`), alignée sur `Minitel1B_Hard`. La licence MIT de
+   web-eye-animation, que transpose le moteur d'yeux, est reproduite dans
+   `NOTICE` et doit suivre le code porté dans `src/faces/`.
 3. **Fusion avec 3615-gateways** : recommandation « rester à part » (ci-dessus).
 4. **Langue** : docs en français (comme les firmwares), README bilingue
    FR/EN comme minitel-musee ?
